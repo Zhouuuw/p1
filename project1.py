@@ -4,6 +4,16 @@ import time
 connection = None
 cursor = None
 
+def login(username,pwd):
+    global connection, cursor
+    '''
+    
+    :param username: input_username
+    :param pwd: input_pwd
+    :return login success or failure
+    '''
+
+
 def connect(path):
     global connection, cursor
     connection = sqlite3.connect(path)
