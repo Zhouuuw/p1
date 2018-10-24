@@ -33,6 +33,7 @@ def offerRide(rdate,seats,price,lugDesc,src, dst):
 
 
 def search(locations):
+    global connection, cursor
     '''
 
     param locations: list
@@ -43,6 +44,7 @@ def search(locations):
     return
 
 def BookOrCancelBookings(isBook):
+    global connection, cursor
     '''
 
     :param isBook: boolean value:
@@ -57,6 +59,7 @@ def BookOrCancelBookings(isBook):
 
 
 def post_requests(rdate,pickup,dropoff,amount):
+    global connection, cursor
     '''
 
     :param rdate: date
@@ -69,6 +72,7 @@ def post_requests(rdate,pickup,dropoff,amount):
     return
 
 def SearchOrDeleteRideRequests(isSearch):
+    global connection, cursor
     '''
 
     :param isSearch:
