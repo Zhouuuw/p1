@@ -1,5 +1,76 @@
 import sqlite3
 import time
+import random
+import difflib
+
+def Findlocations(inputkeyword):
+    outputTuple=()
+    input_query = 'SELECT * FROM locations WHERE city  LIKE "' + inputkeyword + '%" ' \
+                                                                                'UNION SELECT * FROM locations WHERE prov LIKE "' + inputkeyword + '%" ' \
+                                                                                                                                                   'UNION SELECT * FROM locations WHERE address LIKE "' + inputkeyword + '%"LIMIT 5'
+    location_query = 'SELECT * FROM locations WHERE lcode ==   "' + inputkeyword + '" '
+    locationsInRides = getData(location_query)
+    locationsInRidesLists = list(locationsInRides)
+    if isLcode(inputkeyword, list(locationsInRidesLists)) == False:
+        i = 1
+        output = getData(input_query)
+        for item in output:
+            print(str(i) + ': ', end='')
+            print(item)
+            i += 1
+        code = input("Select The Location You Want:\n")
+        outputTuple = tuple(output[int(code) - 1])
+        return outputTuple
+
+    else:
+
+        output = getData(location_query)
+        for item in output:
+            print(item)
+            outputTuple = tuple(item)
+        return outputTuple
+
+def getunique():
+    ##This function contributes to get a unique number in given list.
+
+
+    rno_query = '''
+                SELECT rno FROM rides
+            '''
+    rnosInRides = getData(rno_query)
+    rnosInRidesLists = list(rnosInRides)
+    rnosInRidesList = [item for sublist in rnosInRidesLists for item in sublist]
+
+
+
+    while(1):
+        unique_no = random.randint(0, 1005)
+        if unique_no not in rnosInRidesList:
+            rnosInRidesList.append(unique_no)
+            break
+        else:
+            continue
+    return rnosInRidesList
+
+def getData(input_query):
+    global connection, cursor
+    outputTuple =()
+    cursor.execute(input_query)
+    outputTuple = cursor.fetchall()
+    connection.commit()
+    return outputTuple
+
+
+
+def isLcode(inputKeyWord,inputList):
+    isLcode = False
+    for item in inputList:
+        if inputKeyWord == item[0]:
+            isLcode = True
+            break
+        else:
+            continue
+    return isLcode
 
 connection = None
 cursor = None
@@ -13,7 +84,6 @@ def login(username,pwd):
     :return login success or failure
     '''
 
-
 def connect(path):
     global connection, cursor
     connection = sqlite3.connect(path)
@@ -22,27 +92,60 @@ def connect(path):
     connection.commit()
     return
 
-def offerRide(rdate,seats,price,lugDesc,src, dst):
-    global  connection,cursor
-    '''
-    option of adding and any set of enroute location
-    
-    rno		    int,   automatically assign a unique ride number and set the member as the driver of the ride
-    price		int,    
-    rdate		date,
-    seats		int,
-    lugDesc	    char(10), 
-    src		    char(5),
-    dst		    char(5),
-    driver	    char(15),
-    cno		    int,         
-    '''
+def offerRide():
+    global connection,cursor
+
+    givenRno = None
+    givenPrice = None
+    givenRdate = None
+    givenSeats = None
+    givenLugDesc = None
+    givenSrc = None
+    givenDst = None
+    givenDriver = None
+    givenCno = None
+    inputkeyword =None
+
+
+   # givenPrice = input("Please enter price\n")
+   # givenRdate = input("Please enter date(YYYY-MM-DD)\n")
+    #givenSeats = input("Please enter seats\n")
+    #givenSrc = input("Please enter starting position\n")
+    #givenDst = input("Please enter destination\n")
+
+    option = input("Do you want to add any set of enrouted locations?  Y/N\n")
+    print(option)
+    inputkeyword = input("Please enter keyword(s):\n")
+
+    if option.lower() == 'y' and inputkeyword is not None:
+        print("You Had Chosen", end='')
+        print(Findlocations(inputkeyword))
+    else:
+        print("Invalid Keyword(s)")
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #inputTuple = (givenRno,givenPrice,givenRdate,givenSeats,givenLugDesc,givenSrc,givenDst,givenDriver,givenCno)
+
+
 
     #do something
-    return
 
 
-def search(locations):
+
+
+
+def searchRide(locations):
     global connection, cursor
     '''
 
@@ -50,6 +153,7 @@ def search(locations):
      contains 1-3 location keywords
 
     '''
+
     #do something
     return
 
@@ -97,27 +201,30 @@ def SearchOrDeleteRideRequests(isSearch):
 
     return
 
-
-
 def main():
         global connection,cursor
         path = "./project1.db"
         connect(path)
-        test_query ='''
-                SELECT * FROM members
-        '''
-        cursor.execute(test_query)
-        members = cursor.fetchall()
-        for member in members:
-            print(member)
+
+        operation = input("Eneter Operation Code To Select:\n"
+                          "1: Offer A Ride\n"
+                          "2: Search For Ride\n"
+                          "3: Book Members Or Cancel Bookings\n"
+                          "4: Post Ride Request\n"
+                          "5: Search And Deleter Ride Requests\n"
+                          "Code:")
+
+        if operation == '1':
+            offerRide()
+        elif operation == '2':
+            searchRide()
+        else:
+            print("Invalid Code")
+
+
         connection.commit()
         connection.close()
         return
-
-
-
-
-
 
 
 if __name__ == "__main__":
