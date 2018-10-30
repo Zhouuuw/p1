@@ -4,31 +4,24 @@ import random
 import difflib
 
 def Findlocations(inputkeyword):
-    outputTuple=()
     input_query = 'SELECT * FROM locations WHERE city  LIKE "' + inputkeyword + '%" ' \
                                                                                 'UNION SELECT * FROM locations WHERE prov LIKE "' + inputkeyword + '%" ' \
-                                                                                                                                                   'UNION SELECT * FROM locations WHERE address LIKE "' + inputkeyword + '%"LIMIT 5'
+                                                                                                                                                   'UNION SELECT * FROM locations WHERE address LIKE "' + inputkeyword + '%"'
     location_query = 'SELECT * FROM locations WHERE lcode ==   "' + inputkeyword + '" '
     locationsInRides = getData(location_query)
     locationsInRidesLists = list(locationsInRides)
     if isLcode(inputkeyword, list(locationsInRidesLists)) == False:
-        i = 1
+
         output = getData(input_query)
-        for item in output:
-            print(str(i) + ': ', end='')
-            print(item)
-            i += 1
-        code = input("Select The Location You Want:\n")
-        outputTuple = tuple(output[int(code) - 1])
-        return outputTuple
+        return output
 
     else:
 
         output = getData(location_query)
         for item in output:
             print(item)
-            outputTuple = tuple(item)
-        return outputTuple
+
+        return output
 
 def getunique():
     ##This function contributes to get a unique number in given list.
@@ -43,7 +36,7 @@ def getunique():
 
 
 
-    while(1):
+    while True:
         unique_no = random.randint(0, 1005)
         if unique_no not in rnosInRidesList:
             rnosInRidesList.append(unique_no)
@@ -61,7 +54,6 @@ def getData(input_query):
     return outputTuple
 
 
-
 def isLcode(inputKeyWord,inputList):
     isLcode = False
     for item in inputList:
@@ -72,8 +64,56 @@ def isLcode(inputKeyWord,inputList):
             continue
     return isLcode
 
-connection = None
-cursor = None
+
+def selectLocation(intputkeywords):
+    outputlists = []
+    inputkeywordlist = intputkeywords.split(' ')
+    for item in inputkeywordlist:
+        output = Findlocations(item)
+        outputlists.append(output)
+
+    index = 0
+    outputlist = [item for sublist in outputlists for item in sublist]
+    for item in outputlist[:5]:
+        index += 1
+        print(str(index) + ": ", end='')
+        print(item)
+    if index >= 5:
+        optionM = input("Do You Want To See More Matches? Y/N\n")
+        if optionM.lower() == 'y':
+            for element in outputlist[5:]:
+                index += 1
+                print(str(index) + ": ", end='')
+                print(element)
+            while True:
+                try:
+                    postion = int(input("Enter The Code To Select The Location\n"))
+                    break
+                except ValueError:
+                    print("Invalid Code")
+        elif optionM.lower() == 'n':
+            while True:
+                try:
+                    postion = int(input("Enter The Code To Select The Location\n"))
+                    break
+                except ValueError:
+                    print("Invalid Code")
+        else:
+            print("Invalid Option")
+    else:
+        while True:
+            try:
+                postion = int(input("Enter The Code To Select The Location\n"))
+                break
+            except ValueError:
+                print("Invalid Code")
+
+    print("You have Chosen: ", end='')
+    insertTuple = outputlist[postion - 1]
+    print(outputlist[postion - 1])
+
+    return insertTuple
+
 
 def login(username,pwd):
     global connection, cursor
@@ -104,42 +144,50 @@ def offerRide():
     givenDst = None
     givenDriver = None
     givenCno = None
-    inputkeyword =None
+
+    givenPrice = input("Please enter price\n")
+    givenRdate = input("Please enter date(YYYY-MM-DD)\n")
+    givenSeats = input("Please enter seats\n")
+    givenSrc = input("Please enter starting position\n")
+    givenDst = input("Please enter destination\n")
 
 
-   # givenPrice = input("Please enter price\n")
-   # givenRdate = input("Please enter date(YYYY-MM-DD)\n")
-    #givenSeats = input("Please enter seats\n")
-    #givenSrc = input("Please enter starting position\n")
-    #givenDst = input("Please enter destination\n")
+    srclcode = selectLocation(givenSrc)[0]
+    dstlcode = selectLocation(givenDst)[0]
+
+    outputlists = []
+
+
+    insert_query = ''' INSERT INTO rides(rno,price,rdate,seats,lugDesc,src,dst,driver,cno)
+                  VALUES(?,?,?,?,?,?,?,?,?) '''
 
     option = input("Do you want to add any set of enrouted locations?  Y/N\n")
-    print(option)
-    inputkeyword = input("Please enter keyword(s):\n")
+    if option.lower() == 'y':
+        while True:
+            try:
+                inputkeyword = input("Please enter keyword(s), separated by space:\n")
+                break
+            except ValueError:
+                print("Invalid KeyWords")
+        enroutedlcode = selectLocation(inputkeyword)[0]
 
-    if option.lower() == 'y' and inputkeyword is not None:
-        print("You Had Chosen", end='')
-        print(Findlocations(inputkeyword))
-    else:
-        print("Invalid Keyword(s)")
-
-
-
-
+        givenCno = int(input("Enter The Car Number(Optional):"))
 
 
-
-
+    elif option.lower() == 'n':
+        print("Test")
 
 
 
 
 
-    #inputTuple = (givenRno,givenPrice,givenRdate,givenSeats,givenLugDesc,givenSrc,givenDst,givenDriver,givenCno)
 
 
 
-    #do something
+
+
+
+
 
 
 
