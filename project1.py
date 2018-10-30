@@ -1,7 +1,7 @@
 import sqlite3
 import time
 import random
-import difflib
+from datetime import datetime
 
 def Findlocations(inputkeyword):
     input_query = 'SELECT * FROM locations WHERE city  LIKE "' + inputkeyword + '%" ' \
@@ -11,16 +11,11 @@ def Findlocations(inputkeyword):
     locationsInRides = getData(location_query)
     locationsInRidesLists = list(locationsInRides)
     if isLcode(inputkeyword, list(locationsInRidesLists)) == False:
-
         output = getData(input_query)
         return output
 
     else:
-
         output = getData(location_query)
-        for item in output:
-            print(item)
-
         return output
 
 def getunique():
@@ -135,33 +130,34 @@ def connect(path):
 def offerRide():
     global connection,cursor
 
-    givenRno = None
-    givenPrice = None
-    givenRdate = None
-    givenSeats = None
-    givenLugDesc = None
-    givenSrc = None
-    givenDst = None
-    givenDriver = None
-    givenCno = None
+    given_rno = None
+    given_price = None
+    given_rdate = None
+    given_seats = None
+    given_lug_desc = None
+    given_src = None
+    given_dst = None
+    given_driver = None
+    given_cno = None
 
-    givenPrice = input("Please enter price\n")
-    givenRdate = input("Please enter date(YYYY-MM-DD)\n")
-    givenSeats = input("Please enter seats\n")
-    givenSrc = input("Please enter starting position\n")
-    givenDst = input("Please enter destination\n")
+    given_price = int(input("Please enter price\n"))
+    given_rdate = input("Please enter date(YYYY-MM-DD)\n")
+    given_seats = int(input("Please enter seats\n"))
+    given_lug_desc = int(input("Please enter luggage description\n"))
+    given_src = input("Please enter starting position\n")
+    srclcode = selectLocation(given_src)[0]
 
-
-    srclcode = selectLocation(givenSrc)[0]
-    dstlcode = selectLocation(givenDst)[0]
+    given_dst = input("Please enter destination\n")
+    dstlcode = selectLocation(given_dst)[0]
 
     outputlists = []
 
-
     insert_query = ''' INSERT INTO rides(rno,price,rdate,seats,lugDesc,src,dst,driver,cno)
-                  VALUES(?,?,?,?,?,?,?,?,?) '''
+                     VALUES(?,?,?,?,?,?,?,?,?) '''
 
+    task = (given_rno,given_price,given_rdate,given_seats,given_lug_desc,given_src,given_dst,given_driver,given_cno)
     option = input("Do you want to add any set of enrouted locations?  Y/N\n")
+
     if option.lower() == 'y':
         while True:
             try:
@@ -171,25 +167,22 @@ def offerRide():
                 print("Invalid KeyWords")
         enroutedlcode = selectLocation(inputkeyword)[0]
 
-        givenCno = int(input("Enter The Car Number(Optional):"))
-
-
     elif option.lower() == 'n':
-        print("Test")
+        pass
 
+    option2 = input("Do You Want to Add the Car Number Y/N")
+    while (option2.lower() == 'y'):
+        try:
+            given_cno = int(input("Enter The Car Number(Optional):"))
+            break
+        except ValueError:
+            print("Invalid Car Number")
 
+    cursor.execute("SELECT owner FROM cars WHERE cno == '%d';"%given_cno)
+    carsList = cursor.fetchall()
+    given_driver = carsList[0][0]
 
-
-
-
-
-
-
-
-
-
-
-
+    cursor.execute(insert_query,task)
 
 
 

@@ -33,6 +33,7 @@ create table locations (
   address	char(16),
   primary key (lcode)
 );
+
 create table rides (
   rno		int,
   price		int,
