@@ -270,3 +270,29 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+# This fuction create a unique rno for new rides
+# rno is either within a gap bewteen continuous existing rno
+# or one larger than the max existing rno
+def assign_rno():
+    global connection, cursor
+    try:
+        gap_in_rno = '''select * from
+        (select distinct r1.rno 
+        from rides r1, rides r2 
+        where r1.rno - r2.rno > 1
+    
+        except 
+    
+        select distinct r1.rno from rides r1, rides r2 
+        where r1.rno - r2.rno = 1) 
+        limit 1;
+        '''
+        cursor.execute(gap_in_rno)
+        
+    except Exception as e:
+        max_in_rno = "select max (rno) from rides;"
+        cursor.execute(max_in_rno)
+        
+    return (cursor.fetchone())[0] + 1
